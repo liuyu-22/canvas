@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="zh-CN">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -13,30 +13,59 @@
 <body>
     <canvas id="canvas" width="100" height="100"> </canvas>
     <script>
-        let canvas = document.getElementById("canvas")
+        let canvas = document.getElementById("canvas");
         canvas.width = document.documentElement.clientWidth
         canvas.height = document.documentElement.clientHeight
         let ctx = canvas.getContext("2d");
+        ctx.fillStyle = 'black';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 8;
+        ctx.LineCap = "round";
 
         let padinting = false
+        let last
 
-        ctx.fillStyle = "blue";
+        var isTouchDevice = 'ontouchstart' in document.documentElement;
+        if (isTouchDevice) {
+            canvas.ontouchstart = (e) => {
+                let x = e.touches[0].clientX
+                let y = e.touches[0].clientY
+                last = [x, y]
+            }
+            canvas.ontouchmove = (e) => {
+                let x = e.touches[0].clientX
+                let y = e.touches[0].clientY
+                drawLine(last[0], last[1], x, y)
+                last = [x, y]
+            }
+        } else {
 
-        canvas.onmousedown = () => {
-            padinting = true
-        }
+            canvas.onmousedown = (e) => {
+                padinting = true
+                last = [e.clientX, e.clientY]
+            }
 
-        canvas.onmousemove = (e) => {
-            if (padinting === true) {
-                ctx.fillRect(e.clientX - 5, e.clientY - 5, 10, 10);
-            } else {
-                console.log('什么都不做')
+            canvas.onmousemove = (e) => {
+                if (padinting === true) {
+                    console.log(last)
+                    drawLine(last[0], last[1], e.clientX, e.clientY)
+                    last = [e.clientX, e.clientY]
+
+                }
+
+                canvas.onmouseup = () => {
+                    padinting = false
+                }
             }
         }
 
-        canvas.onmouseup = () => {
-            padinting = false
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
         }
+
     </script>
 </body>
 
